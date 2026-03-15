@@ -557,6 +557,15 @@ body {
   opacity: 0.4;
 }
 
+.todo-text.editing {
+  cursor: text;
+  outline: 1px solid var(--vscode-focusBorder);
+  background: var(--vscode-input-background);
+  border-radius: 2px;
+  padding: 0 3px;
+  white-space: pre-wrap;
+}
+
 .btn-del-todo {
   background: none;
   border: none;

@@ -623,6 +623,20 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
         break;
       }
 
+      case 'renameTodo': {
+        const data = migrate(getData(this._context));
+        const t = data.groups.find(x => x.id === msg.groupId)
+          ?.phases.find(x => x.id === msg.phaseId)
+          ?.files.find(x => x.id === msg.fileId)
+          ?.todos.find(x => x.id === msg.todoId);
+        if (t && msg.text) {
+          t.text = msg.text;
+          saveData(this._context, data);
+          this._sendData();
+        }
+        break;
+      }
+
       case 'removeTodo': {
         const data = migrate(getData(this._context));
         const f = data.groups.find(x => x.id === msg.groupId)

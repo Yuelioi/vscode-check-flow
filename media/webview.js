@@ -38,7 +38,11 @@
   function renderAll() {
     const app = document.getElementById('app');
     if (!app) { return; }
+    const list = app.querySelector('.groups-list');
+    const scrollTop = list ? list.scrollTop : 0;
     app.innerHTML = buildAppHtml();
+    const newList = app.querySelector('.groups-list');
+    if (newList && scrollTop) { newList.scrollTop = scrollTop; }
     bindEvents();
     bindDragDrop();
   }
@@ -165,7 +169,7 @@
           <div class="todo-item" data-todo-id="${t.id}">
             <input type="checkbox" class="todo-check" ${t.checked ? 'checked' : ''}
                    data-action="toggle-todo" data-gid="${gid}" data-pid="${pid}" data-fid="${file.id}" data-tid="${t.id}" />
-            <span class="todo-text${t.checked ? ' done' : ''}">${esc(t.text)}</span>
+            <span class="todo-text${t.checked ? ' done' : ''}" data-action="rename-todo" data-gid="${gid}" data-pid="${pid}" data-fid="${file.id}" data-tid="${t.id}" title="Double-click to edit">${esc(t.text)}</span>
             <button class="btn-del-todo" data-action="del-todo" data-gid="${gid}" data-pid="${pid}" data-fid="${file.id}" data-tid="${t.id}" title="Remove">✕</button>
           </div>
         `).join('')}
@@ -219,11 +223,13 @@
   function onAppDblClick(e) {
     const btn = e.target.closest('[data-action]');
     if (!btn) { return; }
-    const { action, gid, pid } = btn.dataset;
+    const { action, gid, pid, fid, tid } = btn.dataset;
     if (action === 'rename-group') {
       startEdit(btn, (name) => vscode.postMessage({ type: 'renameGroup', groupId: gid, name }));
     } else if (action === 'rename-phase') {
       startEdit(btn, (name) => vscode.postMessage({ type: 'renamePhase', groupId: gid, phaseId: pid, name }));
+    } else if (action === 'rename-todo') {
+      startEdit(btn, (text) => vscode.postMessage({ type: 'renameTodo', groupId: gid, phaseId: pid, fileId: fid, todoId: tid, text }));
     }
   }
 
