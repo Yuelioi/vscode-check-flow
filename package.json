@@ -2,7 +2,7 @@
   "name": "check-flow",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "yuelili",
   "author": {
     "name": "YUE LI",
@@ -102,6 +102,11 @@
         "command": "checkflow.addFromExplorer",
         "title": "%command.addFromExplorer.title%",
         "category": "Check Flow"
+      },
+      {
+        "command": "checkflow.revealInChecklist",
+        "title": "%command.revealInChecklist.title%",
+        "category": "Check Flow"
       }
     ],
     "menus": {
@@ -109,6 +114,12 @@
         {
           "command": "checkflow.addFromExplorer",
           "group": "2_workspace@99"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "checkflow.revealInChecklist",
+          "group": "1_goto@99"
         }
       ],
       "editor/title/context": [

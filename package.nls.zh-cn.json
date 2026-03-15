@@ -11,5 +11,6 @@
   "command.quickImport.title": "从 checklist.json 快速导入",
   "command.enableWatcher.title": "开启自动导入 (checklist.json)",
   "command.disableWatcher.title": "关闭自动导入 (checklist.json)",
-  "command.addFromExplorer.title": "添加到 Check Flow…"
+  "command.addFromExplorer.title": "添加到 Check Flow…",
+  "command.revealInChecklist.title": "在 Check Flow 中定位"
 }

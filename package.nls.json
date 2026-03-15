@@ -11,5 +11,6 @@
   "command.quickImport.title": "Quick Import from checklist.json",
   "command.enableWatcher.title": "Enable Auto-Import (checklist.json)",
   "command.disableWatcher.title": "Disable Auto-Import (checklist.json)",
-  "command.addFromExplorer.title": "Add to Check Flow…"
+  "command.addFromExplorer.title": "Add to Check Flow…",
+  "command.revealInChecklist.title": "Reveal in Check Flow"
 }

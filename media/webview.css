@@ -630,3 +630,15 @@ body {
   text-align: center;
   font-size: 12px;
 }
+
+/* ── Reveal highlight ─────────────────────────────────────────────────────── */
+@keyframes reveal-flash {
+  0%   { background: var(--vscode-list-activeSelectionBackground, rgba(0,120,215,0.35)); }
+  100% { background: transparent; }
+}
+
+.reveal-highlight {
+  animation: reveal-flash 1.5s ease-out forwards;
+  border-radius: 3px;
+}
+

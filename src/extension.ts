@@ -45,6 +45,7 @@ export function activate(context: vscode.ExtensionContext): void {
       'checkflow.addFromExplorer',
       (uri: vscode.Uri, uris?: vscode.Uri[]) => provider.addFromExplorer(uri, uris),
     ),
+    vscode.commands.registerCommand('checkflow.revealInChecklist', () => provider.revealInChecklist()),
     { dispose: () => watcher?.dispose() },
   );
 }

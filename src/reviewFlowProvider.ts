@@ -124,6 +124,58 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  revealInChecklist(): void {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) { return; }
+    const filePath = editor.document.uri.fsPath;
+    const wsRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+    // Normalize a stored path to absolute for comparison (handles relative paths from JSON import)
+    const normalizePath = (p: string): string => {
+      const resolved = (!path.isAbsolute(p) && wsRoot) ? path.join(wsRoot, p) : p;
+      return path.normalize(resolved).toLowerCase();
+    };
+    const targetNorm = path.normalize(filePath).toLowerCase();
+
+    const data = migrate(getData(this._context));
+    let found = false;
+
+    for (const group of data.groups) {
+      for (const phase of group.phases) {
+        const file = phase.files.find(f => normalizePath(f.path) === targetNorm);
+        if (file) {
+          // Expand group and phase so the file is visible
+          if (group.collapsed) { group.collapsed = false; }
+          if (phase.collapsed) { phase.collapsed = false; }
+          saveData(this._context, data);
+
+          // Focus the sidebar panel
+          vscode.commands.executeCommand('checkflow.sidebar.focus');
+
+          // Send highlight message once the view is ready
+          // Use a small delay to ensure the webview has re-rendered after the data update
+          const sendReveal = () => {
+            this._view?.webview.postMessage({ type: 'revealFile', fileId: file.id });
+          };
+          if (this._view) {
+            this._sendData();
+            setTimeout(sendReveal, 150);
+          }
+
+          found = true;
+          break;
+        }
+      }
+      if (found) { break; }
+    }
+
+    if (!found) {
+      vscode.window.showInformationMessage(
+        `"${path.basename(filePath)}" is not in the checklist.`,
+      );
+    }
+  }
+
   async addFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]): Promise<void> {
     const selectedUris = (uris && uris.length > 0) ? uris : (uri ? [uri] : []);
     if (selectedUris.length === 0) {

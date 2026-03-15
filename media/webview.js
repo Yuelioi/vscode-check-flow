@@ -21,6 +21,13 @@
     if (msg.type === 'update') {
       if (!isEditing) { state = msg.data; renderAll(); }
       else { pendingState = msg.data; }
+    } else if (msg.type === 'revealFile') {
+      const block = document.querySelector(`.file-block[data-fid="${msg.fileId}"]`);
+      if (block) {
+        block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        block.classList.add('reveal-highlight');
+        setTimeout(() => block.classList.remove('reveal-highlight'), 1500);
+      }
     }
   });
 
