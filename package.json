@@ -1,0 +1,126 @@
+{
+  "name": "check-flow",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.0",
+  "publisher": "yuelili",
+  "author": {
+    "name": "YUE LI",
+    "email": "yuelioi1210@gmail.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["review", "checklist", "code review", "file tracker", "workflow", "qa"],
+  "icon": "resources/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yuelioi/vscode-check-flow.git"
+  },
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "checkflow-sidebar",
+          "title": "%viewContainer.title%",
+          "icon": "resources/bar.svg"
+        }
+      ]
+    },
+    "views": {
+      "checkflow-sidebar": [
+        {
+          "type": "webview",
+          "id": "checkflow.sidebar",
+          "name": "%view.name%"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "checkflow.refresh",
+        "title": "%command.refresh.title%",
+        "category": "Check Flow",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "checkflow.collapseAll",
+        "title": "%command.collapseAll.title%",
+        "category": "Check Flow",
+        "icon": "$(collapse-all)"
+      },
+      {
+        "command": "checkflow.exportJson",
+        "title": "%command.exportJson.title%",
+        "category": "Check Flow",
+        "icon": "$(export)"
+      },
+      {
+        "command": "checkflow.importJson",
+        "title": "%command.importJson.title%",
+        "category": "Check Flow",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "checkflow.addFromExplorer",
+        "title": "%command.addFromExplorer.title%",
+        "category": "Check Flow"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "checkflow.addFromExplorer",
+          "group": "2_workspace@99"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "checkflow.addFromExplorer",
+          "group": "1_open@99"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "checkflow.collapseAll",
+          "when": "view == checkflow.sidebar",
+          "group": "navigation@1"
+        },
+        {
+          "command": "checkflow.exportJson",
+          "when": "view == checkflow.sidebar",
+          "group": "navigation@2"
+        },
+        {
+          "command": "checkflow.importJson",
+          "when": "view == checkflow.sidebar",
+          "group": "navigation@3"
+        },
+        {
+          "command": "checkflow.refresh",
+          "when": "view == checkflow.sidebar",
+          "group": "navigation@4"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "check-types": "tsc --noEmit",
+    "package": "pnpm vsce package --no-dependencies",
+    "publish": "pnpm vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "22.x",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.6.2",
+    "esbuild": "^0.25.10",
+    "typescript": "^5.9.3"
+  }
+}

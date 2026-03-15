@@ -1,0 +1,11 @@
+{
+  "displayName": "Check Flow",
+  "description": "VSCode 代码检查清单管理器 —— 将文件按分组和阶段组织，通过 Todo 子项和拖拽功能跟踪检查进度。",
+  "viewContainer.title": "检查流程",
+  "view.name": "检查流程",
+  "command.refresh.title": "刷新",
+  "command.collapseAll.title": "折叠 / 展开所有分组",
+  "command.exportJson.title": "导出为 JSON",
+  "command.importJson.title": "从 JSON 导入",
+  "command.addFromExplorer.title": "添加到 Check Flow…"
+}
