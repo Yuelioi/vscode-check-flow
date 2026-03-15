@@ -186,7 +186,7 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
     const data = migrate(getData(this._context));
 
     if (data.groups.length === 0) {
-      vscode.window.showWarningMessage('No groups yet. Open Review Flow and create a group first.');
+      vscode.window.showWarningMessage('No groups yet. Open Check Flow and create a group first.');
       return;
     }
 
@@ -710,7 +710,7 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="${styleUri}" rel="stylesheet">
   <link href="${codiconsUri}" rel="stylesheet">
-  <title>Review Flow</title>
+  <title>Check Flow</title>
 </head>
 <body>
   <div id="app"><div class="loading">Loading…</div></div>

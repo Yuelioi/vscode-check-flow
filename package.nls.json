@@ -1,8 +1,8 @@
 {
   "displayName": "Check Flow",
   "description": "A code review checklist manager for VS Code — organize files into groups and phases, track review progress with todos and drag-and-drop.",
-  "viewContainer.title": "Review Flow",
-  "view.name": "Review Flow",
+  "viewContainer.title": "Check Flow",
+  "view.name": "Check Flow",
   "command.refresh.title": "Refresh",
   "command.collapseAll.title": "Collapse / Expand All Groups",
   "command.exportJson.title": "Export as JSON",

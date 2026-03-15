@@ -139,7 +139,7 @@ Click the collapse icon in the panel title bar (or run **Check Flow: Collapse / 
 
 ## Getting Started
 
-1. Open the **Review Flow** panel in the Activity Bar
+1. Open the **Check Flow** panel in the Activity Bar
 2. Click **＋ Group** → name your group (e.g. "Frontend Review")
 3. Click **+ Phase** → name your phase (e.g. "Sprint 42")
 4. Right-click files in Explorer → **Add to Check Flow…** → select group & phase

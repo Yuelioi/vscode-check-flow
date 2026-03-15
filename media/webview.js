@@ -52,7 +52,7 @@
     const todoBtnClass = ui.todosMode ? 'btn-tool active' : 'btn-tool';
     return `
       <div class="toolbar">
-        <span class="app-title">Review Flow</span>
+        <span class="app-title">Check Flow</span>
         <div class="toolbar-right">
           <button class="${todoBtnClass}" id="btn-todos-mode" title="${ui.todosMode ? 'Hide Todos' : 'Show Todos'}">≡ Todos</button>
           <button class="btn-primary" id="btn-add-group">＋ Group</button>
