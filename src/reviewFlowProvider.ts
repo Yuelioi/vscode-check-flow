@@ -174,6 +174,95 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
     );
   }
 
+  async quickExport(): Promise<void> {
+    const ws = vscode.workspace.workspaceFolders?.[0];
+    if (!ws) {
+      vscode.window.showErrorMessage('No workspace folder open.');
+      return;
+    }
+
+    const data = migrate(getData(this._context));
+    const wsName = path.basename(ws.uri.fsPath);
+
+    const totalFiles = data.groups.flatMap(g => g.phases.flatMap(p => p.files)).length;
+    const doneFiles = data.groups.flatMap(g => g.phases.flatMap(p => p.files.filter(f => f.checked))).length;
+
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      workspace: wsName,
+      summary: `${data.groups.length} groups, ${totalFiles} files, ${doneFiles} checked`,
+      groups: data.groups.map(g => ({
+        name: g.name,
+        phases: g.phases.map(p => ({
+          name: p.name,
+          progress: `${p.files.filter(f => f.checked).length}/${p.files.length} files`,
+          files: p.files.map(f => ({
+            name: f.name,
+            path: f.path,
+            checked: f.checked,
+            todos: f.todos.map(t => ({ text: t.text, checked: t.checked })),
+          })),
+        })),
+      })),
+    };
+
+    const vscodeDir = vscode.Uri.joinPath(ws.uri, '.vscode');
+    await vscode.workspace.fs.createDirectory(vscodeDir);
+    const destUri = vscode.Uri.joinPath(vscodeDir, 'checklist.json');
+    await vscode.workspace.fs.writeFile(destUri, Buffer.from(JSON.stringify(payload, null, 2), 'utf-8'));
+
+    const open = await vscode.window.showInformationMessage(
+      `Exported to checklist.json`,
+      'Open',
+    );
+    if (open === 'Open') {
+      await vscode.window.showTextDocument(destUri);
+    }
+  }
+
+  async quickImport(): Promise<void> {
+    const ws = vscode.workspace.workspaceFolders?.[0];
+    if (!ws) {
+      vscode.window.showErrorMessage('No workspace folder open.');
+      return;
+    }
+
+    const destUri = vscode.Uri.joinPath(ws.uri, '.vscode', 'checklist.json');
+    let imported: any;
+    try {
+      const bytes = await vscode.workspace.fs.readFile(destUri);
+      imported = JSON.parse(Buffer.from(bytes).toString('utf-8'));
+    } catch {
+      vscode.window.showErrorMessage('checklist.json not found or invalid in .vscode/.');
+      return;
+    }
+
+    if (!imported.groups || !Array.isArray(imported.groups)) {
+      vscode.window.showErrorMessage('Invalid file: expected a "groups" array.');
+      return;
+    }
+
+    const choice = await vscode.window.showQuickPick(
+      ['Replace — discard current data', 'Merge — append imported groups'],
+      { placeHolder: 'How to import?' },
+    );
+    if (!choice) { return; }
+
+    const data = migrate(getData(this._context));
+    const newGroups = this._normalizeGroups(imported.groups);
+
+    if (choice.startsWith('Replace')) {
+      data.groups = newGroups;
+    } else {
+      data.groups.push(...newGroups);
+    }
+
+    saveData(this._context, data);
+    this._sendData();
+    vscode.window.showInformationMessage(`Imported ${newGroups.length} group(s) from checklist.json.`);
+  }
+
   async importJson(): Promise<void> {
     const result = await vscode.window.showOpenDialog({
       canSelectFiles: true,
@@ -217,6 +306,51 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
     vscode.window.showInformationMessage(`Imported ${newGroups.length} group(s).`);
   }
 
+  async watcherImport(): Promise<void> {
+    const ws = vscode.workspace.workspaceFolders?.[0];
+    if (!ws) { return; }
+
+    const destUri = vscode.Uri.joinPath(ws.uri, '.vscode', 'checklist.json');
+    let imported: any;
+    try {
+      const bytes = await vscode.workspace.fs.readFile(destUri);
+      imported = JSON.parse(Buffer.from(bytes).toString('utf-8'));
+    } catch { return; }
+
+    if (!imported.groups || !Array.isArray(imported.groups)) { return; }
+
+    const data = migrate(getData(this._context));
+    data.groups = this._normalizeGroups(imported.groups);
+    saveData(this._context, data);
+    this._sendData();
+  }
+
+  private async _quickImportReplace(): Promise<void> {
+    const ws = vscode.workspace.workspaceFolders?.[0];
+    if (!ws) { vscode.window.showErrorMessage('No workspace folder open.'); return; }
+
+    const destUri = vscode.Uri.joinPath(ws.uri, '.vscode', 'checklist.json');
+    let imported: any;
+    try {
+      const bytes = await vscode.workspace.fs.readFile(destUri);
+      imported = JSON.parse(Buffer.from(bytes).toString('utf-8'));
+    } catch {
+      vscode.window.showErrorMessage('checklist.json not found or invalid in .vscode/.');
+      return;
+    }
+
+    if (!imported.groups || !Array.isArray(imported.groups)) {
+      vscode.window.showErrorMessage('Invalid file: expected a "groups" array.');
+      return;
+    }
+
+    const data = migrate(getData(this._context));
+    data.groups = this._normalizeGroups(imported.groups);
+    saveData(this._context, data);
+    this._sendData();
+    vscode.window.showInformationMessage(`Imported ${data.groups.length} group(s) from checklist.json.`);
+  }
+
   private _normalizeGroups(raw: any[]): ChecklistGroup[] {
     return raw.map(g => ({
       id: generateId(),
@@ -254,11 +388,24 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
         this._sendData();
         break;
 
+      case 'exportJson': this.exportJson(); break;
+      case 'importJson': this.importJson(); break;
+      case 'quickExport': this.quickExport(); break;
+      case 'quickImportReplace': this._quickImportReplace(); break;
+
       case 'openFile': {
         try {
-          await vscode.window.showTextDocument(vscode.Uri.file(msg.path), { preview: false });
-        } catch {
-          vscode.window.showErrorMessage(`Cannot open: ${msg.path}`);
+          let uri: vscode.Uri;
+          if (path.isAbsolute(msg.path)) {
+            uri = vscode.Uri.file(msg.path);
+          } else {
+            const ws = vscode.workspace.workspaceFolders?.[0];
+            if (!ws) { vscode.window.showErrorMessage(`Cannot open: ${msg.path}`); break; }
+            uri = vscode.Uri.joinPath(ws.uri, msg.path);
+          }
+          await vscode.window.showTextDocument(uri, { preview: false });
+        } catch (e) {
+          vscode.window.showErrorMessage(`Cannot open: ${msg.path} — ${e instanceof Error ? e.message : String(e)}`);
         }
         break;
       }
@@ -484,15 +631,19 @@ export class ReviewFlowProvider implements vscode.WebviewViewProvider {
     const styleUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.css'),
     );
+    const codiconsUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css'),
+    );
     const nonce = generateNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; font-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="${styleUri}" rel="stylesheet">
+  <link href="${codiconsUri}" rel="stylesheet">
   <title>Review Flow</title>
 </head>
 <body>

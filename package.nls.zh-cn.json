@@ -7,5 +7,9 @@
   "command.collapseAll.title": "折叠 / 展开所有分组",
   "command.exportJson.title": "导出为 JSON",
   "command.importJson.title": "从 JSON 导入",
+  "command.quickExport.title": "快速导出到 checklist.json",
+  "command.quickImport.title": "从 checklist.json 快速导入",
+  "command.enableWatcher.title": "开启自动导入 (checklist.json)",
+  "command.disableWatcher.title": "关闭自动导入 (checklist.json)",
   "command.addFromExplorer.title": "添加到 Check Flow…"
 }

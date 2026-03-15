@@ -75,8 +75,15 @@ Icons in the panel title bar:
 
 | Icon | Action |
 |------|--------|
-| Export | Save the full checklist as human-readable JSON |
-| Import | Load a JSON file (replace current data or merge) |
+| Export | Save the full checklist as human-readable JSON (choose destination) |
+| Import | Load a JSON file (choose file, then replace or merge) |
+
+**Quick variants** (no dialogs, for AI workflows — see [below](#using-the-exported-json-with-ai)):
+
+| Command (Ctrl+Shift+P) | Action |
+|------------------------|--------|
+| Quick Export to checklist.json | Write directly to `<workspace root>/.vscode/checklist.json` |
+| Quick Import from checklist.json | Read directly from `<workspace root>/.vscode/checklist.json` |
 
 Exported JSON is designed to be readable by humans and AI alike:
 
@@ -110,6 +117,19 @@ Exported JSON is designed to be readable by humans and AI alike:
   ]
 }
 ```
+
+### Auto-Import (File Watcher)
+
+The panel title bar has an eye icon that toggles a file watcher on `.vscode/checklist.json`:
+
+| Icon | State | Action |
+|------|-------|--------|
+| `$(eye-closed)` | Watcher OFF | Click to enable auto-import |
+| `$(eye)` | Watcher ON | Click to disable auto-import |
+
+When enabled, any time `.vscode/checklist.json` is **created or modified**, the plugin automatically imports it (replace mode, no dialog). The state is saved per workspace and persists across restarts.
+
+> **Note:** Auto-import always **replaces** the current data. Make sure you don't accidentally overwrite work-in-progress. Disable the watcher when you don't need AI collaboration.
 
 ### Collapse all
 
@@ -147,8 +167,12 @@ All commands are available via `Ctrl+Shift+P` under the **Check Flow** category:
 |---------|-------------|
 | Refresh | Reload the webview |
 | Collapse / Expand All Groups | Toggle collapse state of all groups |
-| Export as JSON | Save checklist to a JSON file |
-| Import from JSON | Load checklist from a JSON file |
+| Export as JSON | Save checklist to a JSON file (with save dialog) |
+| Import from JSON | Load checklist from a JSON file (with file picker) |
+| Quick Export to checklist.json | Write directly to `<workspace root>/.vscode/checklist.json` |
+| Quick Import from checklist.json | Read directly from `<workspace root>/.vscode/checklist.json` |
+| Enable Auto-Import (checklist.json) | Start watching `checklist.json` for changes |
+| Disable Auto-Import (checklist.json) | Stop watching `checklist.json` |
 | Add to Check Flow… | Add selected Explorer items to a phase |
 
 ---
@@ -161,7 +185,55 @@ All data is saved to VS Code's **workspace state** — one independent checklist
 
 ## Using the exported JSON with AI
 
-Export your checklist via the panel title bar → **Export as JSON**, then paste the file content into your AI conversation.
+Check Flow is designed to work seamlessly with AI coding assistants (Claude Code, Copilot, Cursor, etc.). The bridge is `.vscode/checklist.json` — a plain file both humans and AI can read and write.
+
+### Workflow A — Auto-Import (recommended, fully hands-free)
+
+Enable the file watcher once, then let the AI do the rest:
+
+```
+Step 1 (one-time setup)
+  Panel title bar → click $(eye-closed) to enable Auto-Import
+
+Step 2 (export)
+  Ctrl+Shift+P → "Check Flow: Quick Export to checklist.json"
+
+Step 3 (AI edits)
+  Tell AI: "Read checklist.json, update it, and write it back."
+  AI reads → edits → saves checklist.json
+
+Step 4 (auto)
+  Plugin detects the file change → silently replaces data ✓
+  No further action needed.
+```
+
+> **For AI assistants:** `checklist.json` is always at `<workspace root>/.vscode/checklist.json`.
+> Read it, modify it, write it back. If the user has the watcher enabled, the plugin reloads automatically.
+> If the watcher is off, ask the user to run **Quick Import from checklist.json**.
+
+### Workflow B — Manual Import
+
+For one-off exchanges or when you want to review changes before applying:
+
+```
+1. Ctrl+Shift+P → "Check Flow: Quick Export to checklist.json"
+2. Share checklist.json content with AI
+3. AI returns updated JSON → overwrite checklist.json
+4. Ctrl+Shift+P → "Check Flow: Quick Import from checklist.json"
+```
+
+### Workflow C — Dialog-based (custom file location)
+
+Use the panel toolbar icons when you want to choose the file location manually (Export / Import icons open native file dialogs).
+
+---
+
+### ⚠ Important notes
+
+- **Auto-import always replaces** all current data — there is no merge or undo.  Disable the watcher (`$(eye)` → off) when you are not in an AI session to avoid accidental overwrites.
+- The watcher only monitors `.vscode/checklist.json` — files at other locations are ignored.
+- Relative file paths in `checklist.json` are resolved against the workspace root, so AI-generated paths like `src/views/index.vue` work correctly without full absolute paths.
+- The watcher state is saved **per workspace** and persists across VS Code restarts.
 
 ### Suggested prompts
 
@@ -222,11 +294,20 @@ suggest what to focus on next:
 
 ### Round-trip: AI edits → re-import
 
-The AI can return a modified JSON (e.g. with new todos, updated `checked` states, or new phases). To apply the changes:
+**With Auto-Import ON** (zero steps for you):
 
-1. Save the AI's output as a `.json` file
-2. In VS Code → panel title bar → **Import from JSON**
-3. Choose **Merge** to append, or **Replace** to overwrite
+1. AI writes updated JSON to `<workspace root>/.vscode/checklist.json`
+2. Plugin auto-detects the change and reloads — done ✓
+
+**With Auto-Import OFF** (one manual step):
+
+1. AI writes updated JSON to `<workspace root>/.vscode/checklist.json`
+2. Run **Quick Import from checklist.json** (`Ctrl+Shift+P`)
+
+**Custom file location**:
+
+1. Save the AI's output as any `.json` file
+2. Panel toolbar → **Import from JSON** → pick the file → choose Merge or Replace
 
 ---
 

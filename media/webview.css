@@ -11,6 +11,14 @@ body {
   background: transparent;
   overflow-x: hidden;
   user-select: none;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* ── Toolbar ─────────────────────────────────────────────────────────────── */
@@ -72,6 +80,25 @@ body {
 }
 
 .btn-tool:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 2px 4px;
+  opacity: 0.65;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.btn-icon:hover {
   opacity: 1;
   background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
 }
@@ -155,7 +182,9 @@ body {
 
 /* ── Groups list ──────────────────────────────────────────────────────────── */
 .groups-list {
-  padding: 2px 0 8px;
+  /* padding: 2px 0 8px; */
+  overflow: scroll;
+  flex: 1;
 }
 
 /* ── Group ────────────────────────────────────────────────────────────────── */
@@ -175,6 +204,9 @@ body {
   );
   border-top: 1px solid
     var(--vscode-sideBarSectionHeader-border, rgba(128, 128, 128, 0.15));
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .group-hdr:hover {
@@ -255,7 +287,9 @@ body {
   background: var(--vscode-badge-background, rgba(128, 128, 128, 0.15));
   border-radius: 8px;
   min-width: 28px;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   text-align: center;
 }
 

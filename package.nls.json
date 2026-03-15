@@ -7,5 +7,9 @@
   "command.collapseAll.title": "Collapse / Expand All Groups",
   "command.exportJson.title": "Export as JSON",
   "command.importJson.title": "Import from JSON",
+  "command.quickExport.title": "Quick Export to checklist.json",
+  "command.quickImport.title": "Quick Import from checklist.json",
+  "command.enableWatcher.title": "Enable Auto-Import (checklist.json)",
+  "command.disableWatcher.title": "Disable Auto-Import (checklist.json)",
   "command.addFromExplorer.title": "Add to Check Flow…"
 }

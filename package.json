@@ -2,7 +2,7 @@
   "name": "check-flow",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "yuelili",
   "author": {
     "name": "YUE LI",
@@ -12,8 +12,17 @@
   "engines": {
     "vscode": "^1.80.0"
   },
-  "categories": ["Other"],
-  "keywords": ["review", "checklist", "code review", "file tracker", "workflow", "qa"],
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "review",
+    "checklist",
+    "code review",
+    "file tracker",
+    "workflow",
+    "qa"
+  ],
   "icon": "resources/icon.png",
   "repository": {
     "type": "git",
@@ -66,6 +75,30 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "checkflow.quickExport",
+        "title": "%command.quickExport.title%",
+        "category": "Check Flow",
+        "icon": "$(desktop-download)"
+      },
+      {
+        "command": "checkflow.quickImport",
+        "title": "%command.quickImport.title%",
+        "category": "Check Flow",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "checkflow.enableWatcher",
+        "title": "%command.enableWatcher.title%",
+        "category": "Check Flow",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "checkflow.disableWatcher",
+        "title": "%command.disableWatcher.title%",
+        "category": "Check Flow",
+        "icon": "$(eye)"
+      },
+      {
         "command": "checkflow.addFromExplorer",
         "title": "%command.addFromExplorer.title%",
         "category": "Check Flow"
@@ -101,9 +134,19 @@
           "group": "navigation@3"
         },
         {
+          "command": "checkflow.enableWatcher",
+          "when": "view == checkflow.sidebar && !checkflow.watcherEnabled",
+          "group": "navigation@4"
+        },
+        {
+          "command": "checkflow.disableWatcher",
+          "when": "view == checkflow.sidebar && checkflow.watcherEnabled",
+          "group": "navigation@4"
+        },
+        {
           "command": "checkflow.refresh",
           "when": "view == checkflow.sidebar",
-          "group": "navigation@4"
+          "group": "navigation@5"
         }
       ]
     }
@@ -119,6 +162,7 @@
   "devDependencies": {
     "@types/node": "22.x",
     "@types/vscode": "^1.80.0",
+    "@vscode/codicons": "^0.0.45",
     "@vscode/vsce": "^3.6.2",
     "esbuild": "^0.25.10",
     "typescript": "^5.9.3"
